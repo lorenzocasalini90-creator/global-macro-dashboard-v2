@@ -1854,7 +1854,8 @@ def render_group(title: str, desc: str, keys: list, indicators: dict, indicator_
             else:
                 wallboard_tile(k, s, indicator_scores)
 
-with st.expander("Market Thermometers", expanded=True):
+# FIXED: moved inside tabs[1]
+# with st.expander("Market Thermometers", expanded=True):
     render_group("Price of Time", "Rates and curve: the price of time and late-cycle signal.",
                  ["real_10y", "nominal_10y", "yield_curve_10_2"], indicators, indicator_scores, ncols=3)
     render_group("Macro Cycle", "Inflation and growth: policy constraint and cycle pressure.",
@@ -1864,7 +1865,7 @@ with st.expander("Market Thermometers", expanded=True):
     render_group("Liquidity / Plumbing", "System liquidity: tailwind vs drain for risk assets.",
                  ["fed_balance_sheet", "rrp"], indicators, indicator_scores, ncols=3)
 
-with st.expander("Structural Constraints", expanded=True):
+# with st.expander("Structural Constraints", expanded=True):
     render_group("Fiscal / Policy Constraint", "Debt service, deficit dynamics, and funding constraint signal.",
                  ["interest_to_receipts", "deficit_gdp", "term_premium_10y", "interest_payments", "federal_receipts"], indicators, indicator_scores, ncols=3)
     render_group("External Balance", "External funding reliance / vulnerability in USD tightening.",
@@ -2114,8 +2115,8 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
                 payload_lines.append(f"      status: {bstatus}")
 
             eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
-            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
-            payload_lines.append("  operating_lines:")
+        eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
+                payload_lines.append("  operating_lines:")
             payload_lines.append(f"    equity_exposure: \"{eq_line}\"")
             payload_lines.append(f"    duration: \"{dur_line}\"")
             payload_lines.append(f"    credit: \"{cr_line}\"")
