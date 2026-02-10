@@ -1915,23 +1915,11 @@ def main():
             else:
                 wallboard_tile(k, s, indicator_scores)
 
-with st.expander("Market Thermometers", expanded=True):
-# ORPHAN_CALL_REMOVED     render_group("Price of Time", "Rates and curve: the price of time and late-cycle signal.",
-# ORPHAN_CALL_REMOVED                  ["real_10y", "nominal_10y", "yield_curve_10_2"], indicators, indicator_scores, ncols=3)
-# ORPHAN_CALL_REMOVED     render_group("Macro Cycle", "Inflation and growth: policy constraint and cycle pressure.",
-# ORPHAN_CALL_REMOVED                  ["breakeven_10y", "cpi_yoy", "unemployment_rate"], indicators, indicator_scores, ncols=3)
-# ORPHAN_CALL_REMOVED     render_group("Conditions & Stress", "Fast regime: USD, credit stress, vol, trend, risk appetite.",
-# ORPHAN_CALL_REMOVED                  ["usd_index", "hy_oas", "vix", "spy_trend", "hyg_lqd_ratio"], indicators, indicator_scores, ncols=3)
-# ORPHAN_CALL_REMOVED     render_group("Liquidity / Plumbing", "System liquidity: tailwind vs drain for risk assets.",
-# ORPHAN_CALL_REMOVED                  ["fed_balance_sheet", "rrp"], indicators, indicator_scores, ncols=3)
+# ORPHAN_EXPANDER_REMOVED with st.expander("Market Thermometers", expanded=True):
+    pass
 
-with st.expander("Structural Constraints", expanded=True):
-# ORPHAN_CALL_REMOVED     render_group("Fiscal / Policy Constraint", "Debt service, deficit dynamics, and funding constraint signal.",
-# ORPHAN_CALL_REMOVED                  ["interest_to_receipts", "deficit_gdp", "term_premium_10y", "interest_payments", "federal_receipts"], indicators, indicator_scores, ncols=3)
-# ORPHAN_CALL_REMOVED     render_group("External Balance", "External funding reliance / vulnerability in USD tightening.",
-# ORPHAN_CALL_REMOVED                  ["current_account_gdp"], indicators, indicator_scores, ncols=3)
-# ORPHAN_CALL_REMOVED     render_group("Gold", "Hedge demand / policy credibility signal.",
-# ORPHAN_CALL_REMOVED                  ["gold"], indicators, indicator_scores, ncols=3)
+# ORPHAN_EXPANDER_REMOVED with st.expander("Structural Constraints", expanded=True):
+    pass
     # ============================================================
     # FRAMEWORK LOGIC (conceptual, no charts)
     # ============================================================
@@ -2175,8 +2163,8 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
                 payload_lines.append(f"      status: {bstatus}")
 
             eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
-            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
-            payload_lines.append("  operating_lines:")
+        eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
+                payload_lines.append("  operating_lines:")
             payload_lines.append(f"    equity_exposure: \"{eq_line}\"")
             payload_lines.append(f"    duration: \"{dur_line}\"")
             payload_lines.append(f"    credit: \"{cr_line}\"")
