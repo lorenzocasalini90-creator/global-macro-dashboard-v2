@@ -1683,7 +1683,7 @@ def main():
 
 
         eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
-        eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
+            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
 
         market_blocks = ["price_of_time", "macro", "conditions", "plumbing"]
         structural_blocks = ["policy_link", "external", "gold_block"]
@@ -1787,7 +1787,7 @@ def main():
         st.markdown("<div class='muted'>Order: Overall regime → component scores → operating lines → grouped indicator tiles (no charts).</div>", unsafe_allow_html=True)
 
         eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
-        eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
+            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
         gs_txt = "n/a" if np.isnan(global_score) else f"{global_score:.1f}"
 
         st.markdown(
@@ -2163,8 +2163,8 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
                 payload_lines.append(f"      status: {bstatus}")
 
             eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
-        eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
-                payload_lines.append("  operating_lines:")
+            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
+            payload_lines.append("  operating_lines:")
             payload_lines.append(f"    equity_exposure: \"{eq_line}\"")
             payload_lines.append(f"    duration: \"{dur_line}\"")
             payload_lines.append(f"    credit: \"{cr_line}\"")
