@@ -1673,7 +1673,7 @@ def main():
     overlays = compute_overlays(indicators, indicator_scores, block_scores)
 
     # Tabs
-    tabs = st.tabs(["Overview", "Wallboard", "Framework logic", "Deep dive", "What changed", "Report generation"])
+tabs = st.tabs(["Overview", "Wallboard", "Framework logic", "Deep dive", "What changed", "Report generation"])
 
     # ============================================================
     # OVERVIEW
