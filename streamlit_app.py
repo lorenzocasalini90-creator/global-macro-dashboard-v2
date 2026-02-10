@@ -1738,46 +1738,46 @@ def main():
             unsafe_allow_html=True
         )
 
-# Alerts panel (moved to bottom to keep the 5-second read tight)
-alerts = st.session_state.get("alerts", [])
-if alerts:
-    with st.expander("Alerts / attention (data issues, near thresholds, big moves)", expanded=False):
-        top = alerts[:12]
-        st.markdown("<div class='alertBox'>", unsafe_allow_html=True)
-        st.markdown("<div class='alertTitle'>⚠️ Attention (signals worth checking)</div>", unsafe_allow_html=True)
-        for sev, name, msg in top:
-            icon = "🟥" if sev == "CRIT" else ("🟧" if sev == "WARN" else "🟦")
-            st.markdown(f"<div class='alertItem'>{icon} <b>{_html.escape(name)}</b>: {_html.escape(msg)}</div>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-        left, right = st.columns([2, 1])
-        with left:
-            with st.expander("How to read Risk-on / Neutral / Risk-off (behavioral, not forecasts)", expanded=True):
-                st.markdown(
-                    """
-**Risk-on:** markets price easier conditions (lower stress premia), credit behaves well, trend and risk appetite are supportive.  
-**Neutral:** mixed signals; sizing discipline matters more than directional conviction.  
-**Risk-off:** stress/tightening dominates; protect downside first (quality, liquidity, hedges).
+        # Alerts panel (moved to bottom to keep the 5-second read tight)
+        alerts = st.session_state.get("alerts", [])
+        if alerts:
+            with st.expander("Alerts / attention (data issues, near thresholds, big moves)", expanded=False):
+                top = alerts[:12]
+                st.markdown("<div class='alertBox'>", unsafe_allow_html=True)
+                st.markdown("<div class='alertTitle'>⚠️ Attention (signals worth checking)</div>", unsafe_allow_html=True)
+                for sev, name, msg in top:
+                    icon = "🟥" if sev == "CRIT" else ("🟧" if sev == "WARN" else "🟦")
+                    st.markdown(f"<div class='alertItem'>{icon} <b>{_html.escape(name)}</b>: {_html.escape(msg)}</div>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+                left, right = st.columns([2, 1])
+                with left:
+                    with st.expander("How to read Risk-on / Neutral / Risk-off (behavioral, not forecasts)", expanded=True):
+                        st.markdown(
+                            """
+        **Risk-on:** markets price easier conditions (lower stress premia), credit behaves well, trend and risk appetite are supportive.  
+        **Neutral:** mixed signals; sizing discipline matters more than directional conviction.  
+        **Risk-off:** stress/tightening dominates; protect downside first (quality, liquidity, hedges).
 
-**How scores work:**  
-- **Market thermometers** use a ~5Y z-score (`z5y`) → clamped to [-2,+2] → mapped to 0–100.  
-- **Structural constraints** use a ~20Y percentile (`pct20y`) → mapped to [-2,+2] → 0–100.  
-- **Thresholds:** >60 Risk-on, 40–60 Neutral, <40 Risk-off (heuristics).
-                    """.strip()
-                )
-        with right:
-            st.markdown(
-                f"""
-                <div class="card">
-                  <div class="cardTitle">Data & display</div>
-                  <div class="cardSub">
-                    Now: <b>{now_utc}</b><br/>
-                    Latest datapoint: <b>{('n/a' if data_max_date is None else str(pd.to_datetime(data_max_date).date()))}</b><br/>
-                    History: <b>{years_back}y</b>
-                  </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+        **How scores work:**  
+        - **Market thermometers** use a ~5Y z-score (`z5y`) → clamped to [-2,+2] → mapped to 0–100.  
+        - **Structural constraints** use a ~20Y percentile (`pct20y`) → mapped to [-2,+2] → 0–100.  
+        - **Thresholds:** >60 Risk-on, 40–60 Neutral, <40 Risk-off (heuristics).
+                            """.strip()
+                        )
+                with right:
+                    st.markdown(
+                        f"""
+                        <div class="card">
+                          <div class="cardTitle">Data & display</div>
+                          <div class="cardSub">
+                            Now: <b>{now_utc}</b><br/>
+                            Latest datapoint: <b>{('n/a' if data_max_date is None else str(pd.to_datetime(data_max_date).date()))}</b><br/>
+                            History: <b>{years_back}y</b>
+                          </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
     # ============================================================
     # WALLBOARD
@@ -1838,6 +1838,67 @@ if alerts:
             unsafe_allow_html=True
         )
 
+        # --- Grouped indicator tiles — responsive grid (no charts) ---
+        with st.expander("Market Thermometers", expanded=True):
+            render_group(
+                "Price of Time",
+                "Rates and curve: the price of time and late-cycle signal.",
+                ["real_10y", "nominal_10y", "yield_curve_10_2"],
+                indicators,
+                indicator_scores,
+                ncols=3
+            )
+            render_group(
+                "Macro Cycle",
+                "Inflation and growth: policy constraint and cycle pressure.",
+                ["breakeven_10y", "cpi_yoy", "unemployment_rate"],
+                indicators,
+                indicator_scores,
+                ncols=3
+            )
+            render_group(
+                "Conditions & Stress",
+                "Fast regime: USD, credit stress, vol, trend, risk appetite.",
+                ["usd_index", "hy_oas", "vix", "spy_trend", "hyg_lqd_ratio"],
+                indicators,
+                indicator_scores,
+                ncols=3
+            )
+            render_group(
+                "Liquidity / Plumbing",
+                "System liquidity: tailwind vs drain for risk assets.",
+                ["fed_balance_sheet", "rrp"],
+                indicators,
+                indicator_scores,
+                ncols=3
+            )
+
+        with st.expander("Structural Constraints", expanded=True):
+            render_group(
+                "Fiscal / Policy Constraint",
+                "Debt service, deficit dynamics, and funding constraint signal.",
+                ["interest_to_receipts", "deficit_gdp", "term_premium_10y", "interest_payments", "federal_receipts"],
+                indicators,
+                indicator_scores,
+                ncols=3
+            )
+            render_group(
+                "External Balance",
+                "External funding reliance / vulnerability in USD tightening.",
+                ["current_account_gdp"],
+                indicators,
+                indicator_scores,
+                ncols=3
+            )
+            render_group(
+                "Gold",
+                "Hedge demand / policy credibility signal.",
+                ["gold"],
+                indicators,
+                indicator_scores,
+                ncols=3
+            )
+
 # Grouped indicator tiles — responsive grid (no charts)
 def render_group(title: str, desc: str, keys: list, indicators: dict, indicator_scores: dict, ncols: int = 3):
     st.markdown(
@@ -1854,8 +1915,7 @@ def render_group(title: str, desc: str, keys: list, indicators: dict, indicator_
             else:
                 wallboard_tile(k, s, indicator_scores)
 
-# FIXED: moved inside tabs[1]
-# with st.expander("Market Thermometers", expanded=True):
+with st.expander("Market Thermometers", expanded=True):
     render_group("Price of Time", "Rates and curve: the price of time and late-cycle signal.",
                  ["real_10y", "nominal_10y", "yield_curve_10_2"], indicators, indicator_scores, ncols=3)
     render_group("Macro Cycle", "Inflation and growth: policy constraint and cycle pressure.",
@@ -1865,7 +1925,7 @@ def render_group(title: str, desc: str, keys: list, indicators: dict, indicator_
     render_group("Liquidity / Plumbing", "System liquidity: tailwind vs drain for risk assets.",
                  ["fed_balance_sheet", "rrp"], indicators, indicator_scores, ncols=3)
 
-# with st.expander("Structural Constraints", expanded=True):
+with st.expander("Structural Constraints", expanded=True):
     render_group("Fiscal / Policy Constraint", "Debt service, deficit dynamics, and funding constraint signal.",
                  ["interest_to_receipts", "deficit_gdp", "term_premium_10y", "interest_payments", "federal_receipts"], indicators, indicator_scores, ncols=3)
     render_group("External Balance", "External funding reliance / vulnerability in USD tightening.",
@@ -2168,4 +2228,3 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
 
 if __name__ == "__main__":
     main()
-
