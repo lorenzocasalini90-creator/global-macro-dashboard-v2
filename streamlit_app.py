@@ -1490,7 +1490,7 @@ def overlays_to_html(overlays: dict) -> str:
     kind = "warn" if sev <= 1 else "bad"
     return overlay_pill("Quality: " + ", ".join(tags), kind=kind)
 
-def apply_overlays_to_operating_lines(eq: str, dur: str, cr: str, hdg: str, overlays: dict, global_status: str):
+            def apply_overlays_to_operating_lines(eq: str, dur: str, cr: str, hdg: str, overlays: dict, global_status: str):
     if not overlays.get("RegimeQualityTags"):
         return eq, dur, cr, hdg
 
