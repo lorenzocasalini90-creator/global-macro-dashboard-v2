@@ -1669,6 +1669,7 @@ def main():
 
     # Alerts (computed once)
     alerts = build_alerts(indicators, indicator_scores)
+    st.session_state["alerts"] = alerts
     overlays = compute_overlays(indicators, indicator_scores, block_scores)
 
     # Tabs
@@ -1738,6 +1739,7 @@ def main():
         )
 
 # Alerts panel (moved to bottom to keep the 5-second read tight)
+alerts = st.session_state.get("alerts", [])
 if alerts:
     with st.expander("Alerts / attention (data issues, near thresholds, big moves)", expanded=False):
         top = alerts[:12]
@@ -2112,7 +2114,7 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
                 payload_lines.append(f"      status: {bstatus}")
 
             eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
-            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
+        eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
             payload_lines.append("  operating_lines:")
             payload_lines.append(f"    equity_exposure: \"{eq_line}\"")
             payload_lines.append(f"    duration: \"{dur_line}\"")
