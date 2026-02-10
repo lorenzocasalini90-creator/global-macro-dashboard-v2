@@ -2165,5 +2165,6 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
             st.code(one_shot, language="markdown")
             st.caption("Tip: paste the entire block into a new chat. The model should follow the prompt, then read the YAML payload.")
 
-if __name__ == "__main__":
-    main()
+
+
+main()
