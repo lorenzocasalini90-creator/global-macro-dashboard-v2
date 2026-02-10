@@ -2095,6 +2095,12 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
         st.markdown("<div class='muted'>Single copy/paste output: prompt first, then YAML payload.</div>", unsafe_allow_html=True)
 
         if st.button("Generate one-shot prompt + payload"):
+            # ensure operating lines are computed in the outer scope before payload assembly
+            eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
+            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(
+                eq_line, dur_line, cr_line, hdg_line, overlays, global_status
+            )
+
             payload_lines = []
             payload_lines.append("macro_regime_payload:")
             payload_lines.append(f"  generated_at_utc: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}")
@@ -2113,8 +2119,6 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
                 payload_lines.append(f"      score: {0.0 if np.isnan(bscore) else round(bscore, 1)}")
                 payload_lines.append(f"      status: {bstatus}")
 
-            eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
-            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
             payload_lines.append("  operating_lines:")
             payload_lines.append(f"    equity_exposure: \"{eq_line}\"")
             payload_lines.append(f"    duration: \"{dur_line}\"")
@@ -2164,6 +2168,7 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
 
             st.code(one_shot, language="markdown")
             st.caption("Tip: paste the entire block into a new chat. The model should follow the prompt, then read the YAML payload.")
+
 
 if __name__ == "__main__":
     main()
