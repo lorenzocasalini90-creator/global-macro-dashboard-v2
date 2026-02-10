@@ -1678,7 +1678,7 @@ tabs = st.tabs(["Overview", "Wallboard", "Framework logic", "Deep dive", "What c
     # ============================================================
     # OVERVIEW
     # ============================================================
-        with tabs[0]:
+    with tabs[0]:
         st.markdown("<div class='muted'>ETF-oriented macro wallboard: separates Market Thermometers (fast) vs Structural Constraints (slow), then maps to operating lines.</div>", unsafe_allow_html=True)
 
 
