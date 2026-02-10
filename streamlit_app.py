@@ -1673,7 +1673,7 @@ def main():
     overlays = compute_overlays(indicators, indicator_scores, block_scores)
 
     # Tabs
-tabs = st.tabs(["Overview", "Wallboard", "Framework logic", "Deep dive", "What changed", "Report generation"])
+    tabs = st.tabs(["Overview", "Wallboard", "Framework logic", "Deep dive", "What changed", "Report generation"])
 
     # ============================================================
     # OVERVIEW
@@ -2114,7 +2114,7 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
                 payload_lines.append(f"      status: {bstatus}")
 
             eq_line, dur_line, cr_line, hdg_line = operating_lines(block_scores, indicator_scores)
-            eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
+        eq_line, dur_line, cr_line, hdg_line = apply_overlays_to_operating_lines(eq_line, dur_line, cr_line, hdg_line, overlays, global_status)
             payload_lines.append("  operating_lines:")
             payload_lines.append(f"    equity_exposure: \"{eq_line}\"")
             payload_lines.append(f"    duration: \"{dur_line}\"")
