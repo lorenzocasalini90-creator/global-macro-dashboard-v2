@@ -2007,7 +2007,7 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
 
                         fig = plot_premium(s, meta["label"], ref_line=meta.get("ref_line", None), height=340)
 
-                        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=f"deep_{{k}}")
+                        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=f"deep_{k}")
 
 
                     with st.expander("Indicator guide (definition, thresholds, why it matters)", expanded=False):
