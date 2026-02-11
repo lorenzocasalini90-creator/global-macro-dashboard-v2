@@ -1861,27 +1861,6 @@ def main():
                 ncols=3
             )
 
-# Grouped indicator tiles — responsive grid (no charts)
-# ORPHAN_CALL_REMOVED def render_group(title: str, desc: str, keys: list, indicators: dict, indicator_scores: dict, ncols: int = 3):
-# ORPHAN_CALL_REMOVED     st.markdown(
-# ORPHAN_CALL_REMOVED         f"<div class='section'><div class='sectionHead'><div><div class='sectionTitle'>{_html.escape(title)}</div>"
-# ORPHAN_CALL_REMOVED         f"<div class='sectionDesc'>{_html.escape(desc)}</div></div></div></div>",
-# ORPHAN_CALL_REMOVED         unsafe_allow_html=True
-# ORPHAN_CALL_REMOVED     )
-    cols = st.columns(ncols)
-    for j, k in enumerate(keys):
-        with cols[j % ncols]:
-            s = indicators.get(k, pd.Series(dtype=float))
-            if s is None or s.empty:
-                wallboard_missing_tile(k)
-            else:
-                wallboard_tile(k, s, indicator_scores)
-
-# ORPHAN_EXPANDER_REMOVED with st.expander("Market Thermometers", expanded=True):
-    pass
-
-# ORPHAN_EXPANDER_REMOVED with st.expander("Structural Constraints", expanded=True):
-    pass
     # ============================================================
     # FRAMEWORK LOGIC (conceptual, no charts)
     # ============================================================
