@@ -972,6 +972,22 @@ def wallboard_tile(key: str, series: pd.Series, indicator_scores: dict):
     status = sc.get("status", "n/a")
     latest = sc.get("latest", np.nan)
 
+
+def render_group(title: str, desc: str, keys: list, indicators: dict, indicator_scores: dict, ncols: int = 3):
+    st.markdown(
+        f"<div class='section'><div class='sectionHead'><div><div class='sectionTitle'>{_html.escape(title)}</div>"
+        f"<div class='sectionDesc'>{_html.escape(desc)}</div></div></div></div>",
+        unsafe_allow_html=True
+    )
+    cols = st.columns(ncols)
+    for j, k in enumerate(keys):
+        with cols[j % ncols]:
+            s = indicators.get(k, pd.Series(dtype=float))
+            if s is None or s.empty:
+                wallboard_missing_tile(k)
+            else:
+                wallboard_tile(k, s, indicator_scores)
+
     label = _esc(meta["label"])
     source = _esc(meta["source"])
     latest_txt = _esc(fmt_value(latest, meta["unit"], meta.get("scale", 1.0)))
