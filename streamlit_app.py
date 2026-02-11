@@ -988,60 +988,6 @@ def render_group(title: str, desc: str, keys: list, indicators: dict, indicator_
             else:
                 wallboard_tile(k, s, indicator_scores)
 
-    label = _esc(meta["label"])
-    source = _esc(meta["source"])
-    latest_txt = _esc(fmt_value(latest, meta["unit"], meta.get("scale", 1.0)))
-
-    tr = recent_trend(series)
-    wlab = _esc(tr["window_label"])
-    d = tr["delta_pct"]
-    arrow = _esc(tr["arrow"])
-    d_txt = "n/a" if np.isnan(d) else f"{d:+.1f}%"
-    d_txt = _esc(d_txt)
-
-    ref_line = meta.get("ref_line", None)
-    ref_txt = "—" if ref_line is None else str(ref_line)
-    ref_txt = _esc(ref_txt)
-
-    ref_note = _esc(meta["expander"].get("reference", "—"))
-
-    score_txt = "n/a" if np.isnan(score) else f"{score:.0f}"
-    score_txt = _esc(score_txt)
-
-    fragment = f"""
-    <div class="wbTile">
-      <div>
-        <div class="wbName">{label}</div>
-        <div class="wbMeta">{source}</div>
-
-        <div class="wbRow">
-          <div class="wbVal">{latest_txt}</div>
-          <div>{pill_html(status)}</div>
-        </div>
-
-        <div style="margin-top:10px;">
-          {score_bar_html(score)}
-          <div class="wbFoot">
-            <div class="wbSmall">Score: <b>{score_txt}</b></div>
-            <div class="wbSmall">Trend ({wlab}): <b>{arrow} {d_txt}</b></div>
-          </div>
-        </div>
-
-        <div class="wbSmall" style="margin-top:8px;">
-          Reference: <b>{ref_txt}</b> · {ref_note}
-        </div>
-      </div>
-    </div>
-    """
-    render_tile(fragment, height=220)
-
-    with st.expander(f"Indicator guide — {meta['label']}", expanded=False):
-        exp = meta["expander"]
-        st.markdown(f"**What it is:** {exp.get('what','')}")
-        st.markdown(f"**Reference levels / thresholds:** {exp.get('reference','')}")
-        st.markdown("**How to read it:**")
-        st.markdown(exp.get("interpretation", ""))
-        st.markdown(f"**Why it matters (policy/funding link):** {exp.get('bridge','')}")
 
 def wallboard_missing_tile(key: str):
     meta = INDICATOR_META[key]
