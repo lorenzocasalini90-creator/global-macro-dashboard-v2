@@ -1950,7 +1950,26 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
 """).strip())
         with st.expander("Current regime quality tags (live)", expanded=True):
             st.markdown(overlays_to_html(overlays), unsafe_allow_html=True)
-            st.json(overlays)
+
+            # Human-readable overlay flags (clean view)
+            flags = [
+                ("Funding constraint", overlays.get("FundingConstraint", False), overlays.get("FundingSeverity", None)),
+                ("Inflation drift", overlays.get("Inflation_Chronic", False), overlays.get("Inflation_Severity", None)),
+                ("Inflation pulse", overlays.get("Inflation_Acute", False), overlays.get("Inflation_Severity", None)),
+                ("Crowding risk", overlays.get("Concentration", False), overlays.get("Concentration_Severity", None)),
+            ]
+            lines = []
+            for name, on, sev in flags:
+                if on:
+                    sev_txt = "" if sev is None else f" (sev={sev})"
+                    lines.append(f"✅ **{name}**{sev_txt}")
+                else:
+                    lines.append(f"— {name}")
+            st.markdown("\n".join(lines))
+
+            # Keep raw payload available for debugging, but collapsed by default
+            with st.expander("Raw overlay flags (debug)", expanded=False):
+                st.json(overlays)
 
     # DEEP DIVE
     # ============================================================
