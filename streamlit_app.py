@@ -1690,7 +1690,7 @@ def main():
     overlays = compute_overlays(indicators, indicator_scores, block_scores)
 
     # Tabs
-    tabs = st.tabs(["Overview", "Wallboard", "Framework logic", "Deep dive", "What changed", "Report generation"])
+    tabs = st.tabs(["Overview", "Wallboard", "Framework logic", "Deep dive", "What changed", "Report generation", "Overlays"])
 
     # ============================================================
     # OVERVIEW
@@ -1720,7 +1720,7 @@ def main():
               <div class="card">
                 <div class="cardTitle">Global Score (0–100) — core blocks</div>
                 <div class="cardValue">{gs_txt}</div>
-                <div class="cardSub">{pill_html(global_status)}<br/>{overlays_to_html(overlays)}</div>
+                <div class="cardSub">{pill_html(global_status)}<br/>{overlays_to_html(overlays)}<div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08);"><b>Overlay read:</b><br/>Funding constraint → duration hedge weaker; prefer cash / USD hedges.<br/>Inflation drift → structurally bias away from long nominals; prefer TIPS/real assets.<br/>Crowding risk → size down beta, diversify, keep convex hedges.</div></div>
                 <div class="cardSub">
                   <b>Equity:</b> {eq_line}<br/>
                   <b>Duration:</b> {dur_line}<br/>
@@ -1969,6 +1969,13 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
 
             # Keep raw payload available for debugging, but collapsed by default
             with st.expander("Raw overlay flags (debug)", expanded=False):
+                with st.expander("Why this debug view exists", expanded=False):
+                    st.markdown(
+                        "This shows the **raw overlay flag payload** produced by the logic layer (booleans + severities). "
+                        "Use it only when something looks surprising (audit / troubleshooting) or when generating a report. "
+                        "The allocator-facing view is the **tags + playbook deltas** above."
+                    )
+
                 st.json(overlays)
 
     # DEEP DIVE
