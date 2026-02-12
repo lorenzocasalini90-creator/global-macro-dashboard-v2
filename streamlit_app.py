@@ -6,6 +6,7 @@ import yfinance as yf
 import requests
 import plotly.graph_objects as go
 import html as _html
+import textwrap
 from datetime import datetime, timedelta, timezone
 from pandas.tseries.offsets import DateOffset
 
@@ -972,6 +973,60 @@ def wallboard_tile(key: str, series: pd.Series, indicator_scores: dict):
     status = sc.get("status", "n/a")
     latest = sc.get("latest", np.nan)
 
+    label = _esc(meta["label"])
+    source = _esc(meta["source"])
+    latest_txt = _esc(fmt_value(latest, meta["unit"], meta.get("scale", 1.0)))
+
+    tr = recent_trend(series)
+    wlab = _esc(tr["window_label"])
+    d = tr["delta_pct"]
+    arrow = _esc(tr["arrow"])
+    d_txt = "n/a" if np.isnan(d) else f"{d:+.1f}%"
+    d_txt = _esc(d_txt)
+
+    ref_line = meta.get("ref_line", None)
+    ref_txt = "—" if ref_line is None else str(ref_line)
+    ref_txt = _esc(ref_txt)
+
+    ref_note = _esc(meta["expander"].get("reference", "—"))
+
+    score_txt = "n/a" if np.isnan(score) else f"{score:.0f}"
+    score_txt = _esc(score_txt)
+
+    fragment = f"""
+    <div class="wbTile">
+      <div>
+        <div class="wbName">{label}</div>
+        <div class="wbMeta">{source}</div>
+
+        <div class="wbRow">
+          <div class="wbVal">{latest_txt}</div>
+          <div>{pill_html(status)}</div>
+        </div>
+
+        <div style="margin-top:10px;">
+          {score_bar_html(score)}
+          <div class="wbFoot">
+            <div class="wbSmall">Score: <b>{score_txt}</b></div>
+            <div class="wbSmall">Trend ({wlab}): <b>{arrow} {d_txt}</b></div>
+          </div>
+        </div>
+
+        <div class="wbSmall" style="margin-top:8px;">
+          Reference: <b>{ref_txt}</b> · {ref_note}
+        </div>
+      </div>
+    </div>
+    """
+    render_tile(fragment, height=220)
+
+    with st.expander(f"Indicator guide — {meta['label']}", expanded=False):
+        exp = meta["expander"]
+        st.markdown(f"**What it is:** {exp.get('what','')}")
+        st.markdown(f"**Reference levels / thresholds:** {exp.get('reference','')}")
+        st.markdown("**How to read it:**")
+        st.markdown(exp.get("interpretation", ""))
+        st.markdown(f"**Why it matters (policy/funding link):** {exp.get('bridge','')}")
 
 def render_group(title: str, desc: str, keys: list, indicators: dict, indicator_scores: dict, ncols: int = 3):
     st.markdown(
@@ -1714,7 +1769,7 @@ def main():
                 left, right = st.columns([2, 1])
                 with left:
                     with st.expander("How to read Risk-on / Neutral / Risk-off (behavioral, not forecasts)", expanded=True):
-                        st.markdown(
+                        st.markdown(textwrap.dedent(
                             """
 **Risk-on:** markets price easier conditions (lower stress premia), credit behaves well, trend and risk appetite are supportive.  
 **Neutral:** mixed signals; sizing discipline matters more than directional conviction.  
@@ -1724,7 +1779,7 @@ def main():
 - **Market thermometers** use a ~5Y z-score (`z5y`) → clamped to [-2,+2] → mapped to 0–100.  
 - **Structural constraints** use a ~20Y percentile (`pct20y`) → mapped to [-2,+2] → 0–100.  
 - **Thresholds:** >60 Risk-on, 40–60 Neutral, <40 Risk-off (heuristics).
-                            """.strip()
+                            """.strip()).strip()
                         )
 
                 with right:
@@ -1868,7 +1923,7 @@ def main():
     with tabs[2]:
         st.markdown("## Framework logic")
         st.markdown("<div class='muted'>How the monitoring engine works: Market Thermometers vs Structural Constraints, plus regime-quality overlays.</div>", unsafe_allow_html=True)
-        st.markdown("""
+        st.markdown(textwrap.dedent("""
 ### Two layers
 - **Market Thermometers (fast):** prices and spreads that move quickly (rates, USD, credit, vol, trend, liquidity).
 - **Structural Constraints (slow):** compounding limits that shape policy/funding regimes (inflation persistence, fiscal burden, term premium, external balance).
@@ -1892,7 +1947,7 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
 ### Reading conflicts
 - Thermometers Risk-On + Constraints Risk-Off -> Risk-On fragile: size down and hedge smarter.
 - Thermometers Risk-Off + Constraints benign -> Risk-Off tactical: stress may be positioning/liquidity-driven; wait for confirmation.
-""")
+""").strip())
         with st.expander("Current regime quality tags (live)", expanded=True):
             st.markdown(overlays_to_html(overlays), unsafe_allow_html=True)
             st.json(overlays)
@@ -1900,132 +1955,74 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
     # DEEP DIVE
     # ============================================================
     with tabs[3]:
-
         st.markdown("## Deep dive")
-
         st.markdown("<div class='muted'>Full charts. Titles embedded inside charts for dark theme readability.</div>", unsafe_allow_html=True)
 
-
         group_map = {
-
             "Price of Time": ["real_10y", "nominal_10y", "yield_curve_10_2"],
-
             "Macro Cycle": ["breakeven_10y", "cpi_yoy", "unemployment_rate"],
-
             "Conditions & Stress": ["usd_index", "hy_oas", "vix", "spy_trend", "hyg_lqd_ratio"],
-
             "Liquidity / Plumbing": ["fed_balance_sheet", "rrp"],
-
             "Fiscal / Policy Constraint": ["interest_to_receipts", "deficit_gdp", "term_premium_10y", "interest_payments", "federal_receipts"],
-
             "External Balance & Gold": ["current_account_gdp", "gold"],
-
         }
 
-
         # Show all sections by default; each can be collapsed.
-
         for section_name, keys in group_map.items():
-
             with st.expander(section_name, expanded=True):
-
                 for k in keys:
-
                     meta = INDICATOR_META[k]
-
                     s = indicators.get(k, pd.Series(dtype=float))
 
-
                     st.markdown("<div class='section'>", unsafe_allow_html=True)
-
                     sc = indicator_scores.get(k, {})
-
                     score = sc.get("score", np.nan)
-
                     status = sc.get("status", "n/a")
-
                     latest = sc.get("latest", np.nan)
-
                     latest_txt = fmt_value(latest, meta["unit"], meta.get("scale", 1.0))
 
-
                     tr = recent_trend(s)
-
                     wlab = tr["window_label"]
-
                     d = tr["delta_pct"]
-
                     arrow = tr["arrow"]
-
-                    d_txt = "n/a" if np.isnan(d) else f"{{d:+.1f}}%"
-
+                    d_txt = "n/a" if np.isnan(d) else f"{d:+.1f}%"
 
                     st.markdown(
-
                         f"""
-
                         <div class="sectionHead">
-
                           <div>
-
-                            <div class="sectionTitle">{{_html.escape(meta["label"])}}</div>
-
-                            <div class="sectionDesc">{{_html.escape(meta["source"])}}</div>
-
+                            <div class="sectionTitle">{_html.escape(meta["label"])}</div>
+                            <div class="sectionDesc">{_html.escape(meta["source"])}</div>
                           </div>
-
                           <div style="text-align:right;">
-
                             <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
-
-                              <span class="pill">Latest: <b>{{_html.escape(latest_txt)}}</b></span>
-
-                              {{pill_html(status)}}
-
-                              <span class="pill">Score: <b>{{("n/a" if np.isnan(score) else f"{{score:.0f}}")}}</b></span>
-
-                              <span class="pill">Trend ({{_html.escape(wlab)}}): <b>{{_html.escape(arrow)}} {{_html.escape(d_txt)}}</b></span>
-
+                              <span class="pill">Latest: <b>{_html.escape(latest_txt)}</b></span>
+                              {pill_html(status)}
+                              <span class="pill">Score: <b>{("n/a" if np.isnan(score) else f"{score:.0f}")}</b></span>
+                              <span class="pill">Trend ({_html.escape(wlab)}): <b>{_html.escape(arrow)} {_html.escape(d_txt)}</b></span>
                             </div>
-
                           </div>
-
                         </div>
-
                         """,
-
                         unsafe_allow_html=True
-
                     )
 
-
                     if s is None or s.empty:
-
                         st.warning("Missing data for this indicator in the selected history window.")
-
                     else:
-
                         fig = plot_premium(s, meta["label"], ref_line=meta.get("ref_line", None), height=340)
-
                         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=f"deep_{k}")
 
-
                     with st.expander("Indicator guide (definition, thresholds, why it matters)", expanded=False):
-
                         exp = meta["expander"]
-
-                        st.markdown(f"**What it is:** {{exp.get('what','')}}")
-
-                        st.markdown(f"**Reference levels / thresholds:** {{exp.get('reference','')}}")
-
+                        st.markdown(f"**What it is:** {exp.get('what','')}")
+                        st.markdown(f"**Reference levels / thresholds:** {exp.get('reference','')}")
                         st.markdown("**How to read it:**")
-
                         st.markdown(exp.get("interpretation", ""))
-
-                        st.markdown(f"**Why it matters (policy/funding link):** {{exp.get('bridge','')}}")
-
+                        st.markdown(f"**Why it matters (policy/funding link):** {exp.get('bridge','')}")
 
                     st.markdown("</div>", unsafe_allow_html=True)
+
 
 
     # ============================================================
