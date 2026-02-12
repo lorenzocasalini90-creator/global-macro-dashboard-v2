@@ -2236,5 +2236,117 @@ Overlays do not change the score. They add interpretive tags and adjust the ETF 
             st.code(one_shot, language="markdown")
             st.caption("Tip: paste the entire block into a new chat. The model should follow the prompt, then read the YAML payload.")
 
+    # ============================================================
+    # OVERLAYS (explainability layer; no new indicators or scores)
+    # ============================================================
+    with tabs[6]:
+        st.markdown("## Overlays — explainability & playbook deltas")
+        st.markdown("<div class='muted'>Overlays do not change the core regime score. They explain *why risk may be fragile* and how the ETF playbook adjusts.</div>", unsafe_allow_html=True)
+
+        # Summary
+        sev = overlays.get("RegimeQualitySeverity", overlays.get("RegimeQualitySeverity", 0))
+        st.markdown(
+            f"""
+            <div class="grid2">
+              <div class="card">
+                <div class="cardTitle">Core regime (unchanged)</div>
+                <div class="cardSub">{pill_html(global_status)}<br/>{score_bar_html(global_score)}</div>
+              </div>
+              <div class="card">
+                <div class="cardTitle">Overlay quality tags</div>
+                <div class="cardSub">{overlays_to_html(overlays)}</div>
+                <div class="cardSub">Severity: <b>{('n/a' if sev is None else sev)}</b></div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("### Overlay cards")
+
+        def overlay_card(title: str, why: str, deltas: list[str], keys: list[str]):
+            st.markdown("<div class='section'>", unsafe_allow_html=True)
+            st.markdown(
+                f"""
+                <div class="sectionHead">
+                  <div>
+                    <div class="sectionTitle">{_html.escape(title)}</div>
+                    <div class="sectionDesc">{_html.escape(why)}</div>
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            st.markdown("**Playbook deltas (vs core regime):**")
+            for d in deltas:
+                st.markdown(f"- {d}")
+
+            st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+            render_group(
+                "Evidence snapshot (existing indicators)",
+                "These are existing indicators already used elsewhere in the dashboard; shown here only to justify the overlay.",
+                keys, indicators, indicator_scores, ncols=3
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        # Inflation overlay (acute vs chronic)
+        infl_acute = overlays.get("Inflation_Acute", False)
+        infl_chronic = overlays.get("Inflation_Chronic", False)
+        infl_sev = overlays.get("Inflation_Severity", None)
+
+        infl_state = "Off"
+        if infl_acute and infl_chronic:
+            infl_state = "Acute + Chronic"
+        elif infl_acute:
+            infl_state = "Acute pulse"
+        elif infl_chronic:
+            infl_state = "Chronic drift"
+
+        overlay_card(
+            f"Inflation overlay — {infl_state}" + ("" if infl_sev is None else f" (sev={infl_sev})"),
+            "Acute = near-term inflation acceleration; Chronic = persistent inflation constraint that changes the duration/real-assets mix.",
+            [
+                "**Duration:** de-emphasize long nominals as a hedge; prefer **TIPS** / shorter duration / barbell.",
+                "**Credit:** be selective; avoid long-spread-duration credit when inflation risk is high.",
+                "**Hedges:** consider **gold/real assets**; USD hedges gain value if inflation tightens policy."
+            ],
+            ["breakeven_10y", "cpi_yoy", "real_10y", "nominal_10y"]
+        )
+
+        # Crowding / concentration overlay
+        conc_sev = overlays.get("Concentration_Severity", None)
+        overlay_card(
+            "Crowding / concentration overlay" + ("" if conc_sev is None else f" (sev={conc_sev})"),
+            "Crowding risk = compressed premia + low vol + strong trend → non-linear drawdown risk even if the regime is Risk-On.",
+            [
+                "**Equity:** size down beta; diversify away from single-factor winners; avoid over-concentration.",
+                "**Credit:** prefer higher quality / liquidity; avoid reach-for-yield when spreads are tight.",
+                "**Hedges:** keep convexity (vol, USD, gold) even in Risk-On."
+            ],
+            ["hy_oas", "vix", "spy_trend", "hyg_lqd_ratio"]
+        )
+
+        # Funding / policy constraint overlay
+        fund_sev = overlays.get("FundingSeverity", None)
+        overlay_card(
+            "Funding / policy constraint overlay" + ("" if fund_sev is None else f" (sev={fund_sev})"),
+            "Funding constraint = issuance/term premium/USD dynamics that make long duration a weaker hedge and tighten global conditions.",
+            [
+                "**Duration:** long nominal hedge degrades when term premium rises; keep duration more tactical.",
+                "**Equity:** be cautious with leverage-sensitive exposures; funding shocks can transmit fast.",
+                "**Hedges:** **cash-like + USD** hedges become more valuable; gold can help as policy-credibility hedge."
+            ],
+            ["term_premium_10y", "interest_to_receipts", "deficit_gdp", "usd_index", "real_10y"]
+        )
+
+        st.markdown("### When to look at overlays")
+        st.markdown(
+            """- **Risk-On + overlays active** → treat as *fragile Risk-On*: size down and hedge smarter.
+- **Neutral + Inflation drift** → avoid long-duration concentration; prefer real hedges.
+- **Risk-Off** → overlays still shown, but protection/liquidity dominate the playbook.
+            """.strip()
+        )
+
+
 if __name__ == "__main__":
     main()
